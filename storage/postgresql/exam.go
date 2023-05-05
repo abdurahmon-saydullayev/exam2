@@ -20,8 +20,8 @@ func NewExamRepo(db *pgxpool.Pool) *ExamRepo {
 //2-exam
 func (r ExamRepo) EachStaff(ctx context.Context, req *models.Date) (res []models.StaffDate, err error) {
 	query := `SELECT
-    staffs.first_name || ' ' || staffs.last_name AS "employe",  categories.category_name AS "category",
-       products.product_name AS "product",   order_items.quantity AS "quantity",   order_items.list_price * order_items.quantity AS "summ"
+    staffs.first_name || ' ' || staffs.last_name AS "employee",  categories.category_name AS "category",
+       products.product_name AS "product",   order_items.quantity AS "quantity",   order_items.list_price * order_items.quantity AS "total"
 FROM orders
          JOIN order_items ON orders.order_id = order_items.order_id
          JOIN products ON order_items.product_id = products.product_id
