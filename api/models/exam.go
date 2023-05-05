@@ -27,8 +27,8 @@ type CreatePromo struct {
 	Id int `json:"id"`
 	Name string `json:"name"`
 	Discount float64 `json:"discount"`
-	Type string `json:"type"`
-	Limitt float64 `json:"limit"`
+	Type string `json:"discount_type"`
+	Limitt float64 `json:"order_limit_price"`
 }
 
 type SendProduct struct {
