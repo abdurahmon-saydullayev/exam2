@@ -85,6 +85,9 @@ func NewApi(r *gin.Engine, cfg *config.Config, store storage.StorageI, logger lo
 	r.POST("/total",handler.Total)
 	//3
 	r.POST("/createPromo",handler.Create)
+	r.GET("/getbyid",handler.GetByIdPromocode)
+	r.GET("getall",handler.GetListPromocode)
+	r.DELETE("delete",handler.DeletePromocode)
 	
 
 	url := ginSwagger.URL("swagger/doc.json") // The url pointing to API definition
