@@ -27,6 +27,7 @@ func (r ExamRepo) SendProduct(ctx context.Context, req *models.SendProduct) (int
 	`
 
 	query2 := `
+	
 		UPDATE stocks SET quantity=quantity+$1
 		WHERE store_id=$2
 		AND product_id=$3
