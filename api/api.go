@@ -78,6 +78,8 @@ func NewApi(r *gin.Engine, cfg *config.Config, store storage.StorageI, logger lo
 	r.DELETE("/order_item/:id", handler.DeleteOrderItem)
 
 	// exam api
+	//1
+	r.PUT("/send",handler.SendProduct)
 	//2
 	r.GET("/eachstaff/:year", handler.EachStaff)
 	r.GET("/eachstaff", handler.EachStaff)

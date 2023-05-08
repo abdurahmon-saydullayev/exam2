@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 	"time"
-
+	
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -15,6 +15,43 @@ type ExamRepo struct {
 
 func NewExamRepo(db *pgxpool.Pool) *ExamRepo {
 	return &ExamRepo{db: db}
+}
+
+//1-exam
+func (r ExamRepo) SendProduct(ctx context.Context, req *models.SendProduct) (int, error) {
+	query1 := `
+		UPDATE stocks SET quantity=quantity-$1
+		WHERE store_id=$2
+		AND product_id=$3
+		AND quantity>=$1
+	`
+
+	query2 := `
+		UPDATE stocks SET quantity=quantity+$1
+		WHERE store_id=$2
+		AND product_id=$3
+	`
+
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	if _, err := tx.Exec(ctx, query1, req.Num, req.From, req.Product_id); err != nil {
+		tx.Rollback(ctx)
+		return 0, err
+	}
+
+	if _, err := tx.Exec(ctx, query2, req.Num, req.To, req.Product_id); err != nil {
+		tx.Rollback(ctx)
+		return 0, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return 0, err
+	}
+
+	return req.Num, nil
 }
 
 //2-exam
@@ -204,126 +241,3 @@ func (r ExamRepo) Create(ctx context.Context, req *models.CreatePromo) (int, err
 	return result.RowsAffected(), nil
   }
 
-//1-exam
-// func (r stockRepo) SendStock(ctx context.Context, req *models.SendStockRequest) error {
-// 	var (
-// 		query  string
-// 		params map[string]interface{}
-// 	)
-
-// 	sourceStock, err := r.GetStock(ctx, req.SourceStockID, req.ProductID)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if sourceStock.Quantity < req.Quantity {
-// 		return errors.New("insufficient quantity in the source stock")
-// 	}
-
-// 	sourceStock.Quantity -= req.Quantity
-// 	if sourceStock.Quantity == 0 {
-// 		err = r.DeleteStock(ctx, sourceStock.ID)
-// 		if err != nil {
-// 			return err
-// 		}
-// 	} else {
-// 		query = `
-// 		UPDATE
-// 		stocks
-// 		SET
-// 			quantity = :quantity
-// 		WHERE id = :id
-// 	`
-// 		params = map[string]interface{}{
-// 			"id":       sourceStock.ID,
-// 			"quantity": sourceStock.Quantity,
-// 		}
-// 		query, args := helper.ReplaceQueryParams(query, params)
-// 		_, err = r.db.Exec(ctx, query, args...)
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-
-// 	// Add the quantity to the destination stock
-// 	destinationStock, err := r.GetStock(ctx, req.DestinationStockID, req.ProductID)
-// 	if err != nil {
-// 		destinationStock = &models.Stock{
-// 			StoreID:   req.DestinationStockID,
-// 			ProductID: req.ProductID,
-// 			Quantity:  req.Quantity,
-// 		}
-// 		err = r.InsertStock(ctx, destinationStock)
-// 		if err != nil {
-// 			return err
-// 		}
-// 	} else {
-// 		destinationStock.Quantity += req.Quantity
-// 		query = `
-// 		UPDATE
-// 		stocks
-// 		SET
-// 			quantity = :quantity
-// 		WHERE id = :id
-// 	`
-// 		params = map[string]interface{}{
-// 			"id":       destinationStock.ID,
-// 			"quantity": destinationStock.Quantity,
-// 		}
-// 		query, args := helper.ReplaceQueryParams(query, params)
-// 		_, err = r.db.Exec(ctx, query, args...)
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-
-// 	return nil
-// }
-// func (r *productRepo) GetStocks(ctx context.Context, storeID int) ([]*models.Stock, error) {
-// 	var stocks []*models.Stock
-
-// 	query := `
-// 		SELECT
-// 			s.product_id,
-// 			p.product_name,
-// 			s.quantity,
-// 			p.list_price
-// 		FROM
-// 			stocks s
-// 			INNER JOIN products p ON s.product_id = p.product_id
-// 		WHERE
-// 			s.store_id = $1
-// 	`
-
-// 	rows, err := r.db.Query(ctx, query, storeID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
-
-// 	for rows.Next() {
-// 		stock := &models.Stock{}
-// 		err := rows.Scan(
-// 			&stock.ProductID,
-// 			&stock.ProductName,
-// 			&stock.Quantity,
-// 			&stock.ListPrice,
-// 		)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		stocks = append(stocks, stock)
-// 	}
-
-// 	return stocks, nil
-// }
-// func (r *stockRepo) DeleteStock(ctx context.Context, storeID int64, productID int64) error {
-// 	const query = `
-// 		DELETE FROM stocks
-// 		WHERE store_id = $1 AND product_id = $2
-// 	`
-// 	_, err := r.db.ExecContext(ctx, query, storeID, productID)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }

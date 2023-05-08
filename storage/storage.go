@@ -89,6 +89,7 @@ type OrderRepoI interface {
 }
 
 type ExamRepoI interface {
+	SendProduct(ctx context.Context,req *models.SendProduct)(int, error)
 	EachStaff(ctx context.Context, req *models.Date)(res []models.StaffDate, err error)
 	Total(ctx context.Context, req *models.Id) (res models.Dis, err error)
 	Create(ctx context.Context,req *models.CreatePromo)(int, error)

@@ -10,6 +10,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func (h *Handler) SendProduct(c *gin.Context){
+	var product models.SendProduct
+
+	err:=c.ShouldBindJSON(&product)
+	if err != nil{
+		h.handlerResponse(c, "product",http.StatusBadRequest,err.Error())
+		return
+	}
+	res,err:=h.storages.Exam().SendProduct(context.Background(),&product)
+	if err != nil{
+		h.handlerResponse(c,"method error",http.StatusInternalServerError,err.Error())
+		return
+	}
+	h.handlerResponse(c,"Response",http.StatusOK,res)
+}
 func (h *Handler) EachStaff(c *gin.Context) {
 	year := c.Param("year")
 
@@ -45,15 +60,15 @@ func (h *Handler) Total(c *gin.Context) {
 
 func (h *Handler) Create(c *gin.Context) {
 
-	var createPromoCode models.CreatePromoCode
+	var createPromo models.CreatePromo
 
-	err := c.ShouldBindJSON(&createPromoCode) // parse req body to given type struct
+	err := c.ShouldBindJSON(&createPromo)
 	if err != nil {
 		h.handlerResponse(c, "create promocode", http.StatusBadRequest, err.Error())
 		return
 	}
 	// fmt.Println(createPromoCode)
-	id, err := h.storages.Exam().Create(context.Background(), &createPromoCode)
+	id, err := h.storages.Exam().Create(context.Background(), &createPromo)
 	if err != nil {
 		h.handlerResponse(c, "storage.order.create", http.StatusInternalServerError, err.Error())
 		return

@@ -30,11 +30,14 @@ type CreatePromo struct {
 	Type string `json:"discount_type"`
 	Limitt float64 `json:"order_limit_price"`
 }
+//1 -- 11 -- 8
+//2 -- 11 -- 21
 
 type SendProduct struct {
-	From string `json:"from"`
+	Num int `json:"num"`
+	From int `json:"from"`
 	Product_id int `json:"product_id"`
-	To string `json:"to"`
+	To int `json:"to"`
 }
 type SendStockRequest struct {
 	ProductID  int 
