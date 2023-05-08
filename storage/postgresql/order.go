@@ -91,7 +91,6 @@ func (r *orderRepo) GetByID(ctx context.Context, req *models.OrderPrimaryKey) (*
 		SELECT
 			o.order_id, 
 			o.customer_id,
-		
 			c.customer_id,
 			c.first_name,
 			c.last_name,
@@ -185,8 +184,10 @@ func (r *orderRepo) GetByID(ctx context.Context, req *models.OrderPrimaryKey) (*
 		return nil, err
 	}
 
-	orderItemObject.AssignTo(&order.OrderItems)
-
+	err = orderItemObject.AssignTo(&order.OrderItems)
+	if err != nil {
+		return nil, err
+	}
 	return &order, nil
 }
 
