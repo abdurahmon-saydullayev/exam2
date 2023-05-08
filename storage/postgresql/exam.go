@@ -39,12 +39,18 @@ func (r ExamRepo) SendProduct(ctx context.Context, req *models.SendProduct) (int
 	}
 
 	if _, err := tx.Exec(ctx, query1, req.Num, req.From, req.Product_id); err != nil {
-		tx.Rollback(ctx)
+		err=tx.Rollback(ctx)
+		if err != nil {
+			return 0, err
+		}
 		return 0, err
 	}
 
 	if _, err := tx.Exec(ctx, query2, req.Num, req.To, req.Product_id); err != nil {
-		tx.Rollback(ctx)
+		err=tx.Rollback(ctx)
+		if err != nil {
+			return 0, err
+		}
 		return 0, err
 	}
 
